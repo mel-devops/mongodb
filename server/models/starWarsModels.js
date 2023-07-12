@@ -1,20 +1,17 @@
 const mongoose = require('mongoose');
 
-const MONGO_URI = 'YOUR_URI_HERE';
+const MONGO_URI = 'mongorestore -db=starwars --uri="mongodb+srv://melkydd:yynQwC83uUUfUYOD>@cluster2.3honm6b.mongodb.net/?retryWrites=true&w=majority" dump';
 
 mongoose.connect(MONGO_URI, {
-  // options for the connect method to parse the URI
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  // sets the name of the DB that our collections are part of
   dbName: 'starwars'
 })
-  .then(() => console.log('Connected to Mongo DB.'))
-  .catch(err => console.log(err));
+  .then(() => console.log('Connected to MongoDB Atlas'))
+  .catch(err => console.error(err));
 
 const Schema = mongoose.Schema;
 
-// sets a schema for the 'species' collection
 const speciesSchema = new Schema({
   name: String,
   classification: String,
@@ -26,32 +23,73 @@ const speciesSchema = new Schema({
   language: String,
   homeworld: String,
   homeworld_id: {
-    // type of ObjectId makes this behave like a foreign key referencing the 'planet' collection
     type: Schema.Types.ObjectId,
-    ref: 'planet'
-  }
+    ref: 'Planets' 
+
+const Species = mongoose.model('Species', speciesSchema);
+
+const planetsSchema = new Schema({
+  name: String,
+  rotation_period: Number,
+  orbital_period: Number,
+  diameter: Number,
+  climate: String,
+  gravity: String,
+  terrain: String,
+  population: Number,
 });
 
-// creats a model for the 'species' collection that will be part of the export
-const Species = mongoose.model('species', speciesSchema);
+const Planets = mongoose.model('Planets', planetsSchema);
 
+const filmsSchema = new Schema({
+  title: String,
+  episode_id: Number,
+  opening_crawl: String, 
+  director: String,
+  producer: String,
+  release_date: Date,
+});
 
-// TODO: create a schema for 'planet' and use it to create the model for it below
+const Films = mongoose.model('Films', filmsSchema);
 
+const peopleSchema = new Schema({
+  name: String,
+  mass: String,
+  hair_color: String,
+  skin_color: String,
+  eye_color: String,
+  birth_year: String,
+  gender: String,
+  height: Number,
+  homeworld: String,
+  homeworld_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'Planets' 
+  },
+  species: String,
+  species_id: {
+    type: Schema.Types.ObjectId,
+    ref: 'Species' 
+  },
+  films: [
+    {
+      title: {
+        type: String,
+        required: true
+      },
+      id: {
+        type: Schema.Types.ObjectId,
+        ref: 'Films' 
+      }
+    }
+  ]
+});
 
+const People = mongoose.model('People', peopleSchema);
 
-// TODO: create a schema for 'film' and use it to create the model for it below
-
-
-
-// TODO: create a schema for 'person' and use it to create the model for it below
-
-
-
-// exports all the models in an object to be used in the controller
 module.exports = {
   Species,
-  // Planet,
-  // Film,
-  // Person
+  Planets,
+  Films,
+  People
 };
