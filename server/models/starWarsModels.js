@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
-const MONGO_URI = 'mongorestore -db=starwars --uri="mongodb+srv://melkydd:yynQwC83uUUfUYOD>@cluster2.3honm6b.mongodb.net/?retryWrites=true&w=majority" dump';
-
+const MONGO_URI = 'mongodb+srv://melkydd:yynQwC83uUUfUYOD@cluster2.3honm6b.mongodb.net/?retryWrites=true&w=majority';
 mongoose.connect(MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -23,12 +22,16 @@ const speciesSchema = new Schema({
   language: String,
   homeworld: String,
   homeworld_id: {
+  // type of ObjectId makes this behave like a foreign key referencing the 'planet' collection
     type: Schema.Types.ObjectId,
-    ref: 'Planets' 
+    ref: 'planet'
+  }
+});
 
-const Species = mongoose.model('Species', speciesSchema);
+// creats a model for the 'species' collection that will be part of the export
+const Species = mongoose.model('species', speciesSchema);
 
-const planetsSchema = new Schema({
+const planetSchema = new Schema({
   name: String,
   rotation_period: Number,
   orbital_period: Number,
@@ -36,60 +39,61 @@ const planetsSchema = new Schema({
   climate: String,
   gravity: String,
   terrain: String,
+  surface_water: String,
   population: Number,
+  
 });
 
-const Planets = mongoose.model('Planets', planetsSchema);
+const Planet = mongoose.model('planet', planetSchema);
 
-const filmsSchema = new Schema({
+// TODO: create a schema for 'film' and use it to create the model for it below
+
+const filmSchema = new Schema({
   title: String,
   episode_id: Number,
-  opening_crawl: String, 
-  director: String,
+  opening_Crawl: String,
+  director: Number,
   producer: String,
   release_date: Date,
+  
 });
 
-const Films = mongoose.model('Films', filmsSchema);
+const Film = mongoose.model('films', filmSchema);
+
+
+// TODO: create a schema for 'person' and use it to create the model for it below
 
 const peopleSchema = new Schema({
-  name: String,
+  name: {type: String, required: true },
   mass: String,
   hair_color: String,
   skin_color: String,
   eye_color: String,
   birth_year: String,
   gender: String,
-  height: Number,
-  homeworld: String,
-  homeworld_id: {
-    type: Schema.Types.ObjectId,
-    ref: 'Planets' 
-  },
   species: String,
   species_id: {
+    // type of ObjectId makes this behave like a foreign key referencing the 'planet' collection
     type: Schema.Types.ObjectId,
-    ref: 'Species' 
+    ref: 'species'
   },
-  films: [
-    {
-      title: {
-        type: String,
-        required: true
-      },
-      id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Films' 
-      }
-    }
-  ]
+  homeworld: String, 
+  homeworld_id: {
+    // type of ObjectId makes this behave like a foreign key referencing the 'planet' collection
+    type: Schema.Types.ObjectId,
+    ref: 'planet'
+  }, 
+  height: Number, 
+  // films: { keys: title (String), id (ObjectId referencing 'film')
+  // }
+  
 });
 
-const People = mongoose.model('People', peopleSchema);
+const Person = mongoose.model('people', peopleSchema);
 
 module.exports = {
   Species,
-  Planets,
-  Films,
-  People
+  Planet,
+  Film,
+  Person
 };
